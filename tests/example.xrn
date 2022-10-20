@@ -1,8 +1,3 @@
-# xrnLanguage
-[![Continous Integration](https://github.com/DiantArts/xrnLanguage/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/DiantArts/xrnLanguage/actions/workflows/continuous-integration.yml)
-
-Here is an example of the syntax:
-```
 import Math;
 
 class Circle {
@@ -26,4 +21,3 @@ main(argv) {
     printTotalArea(circles);
     return 0;
 }
-```

@@ -1,0 +1,102 @@
+# ------------------------------------- Types
+sizedTypes =
+    | IN # I8, I16, I32, I64
+    | FloatN # F8, F16, F32, F8
+    | Bool
+    | Char
+    | Size # Max array size (usually I64)
+    | String
+Auto # auto deduces the type
+
+containerTypes = # tmp like c++ but using () instead of <>
+    | Array
+    | Vector
+    | View # span
+
+# ------------------------------------- Function
+count(arg1: Bool, arg2: Int) {} # returning void functions
+count(arg1: Bool, arg2: Int): String, Size {}
+
+# ------------------------------------- Template Function
+count(arg1, arg2) {} # auto deducing argument types and return type
+count(arg1: Auto, arg2: Auto): Auto, Auto {} # auto deducing argument types and return type (explicitly)
+count(i: Size): Size {}
+
+# ------------------------------------- Assignation
+<variableName>: <variableType>; # declaration
+<variableName>: <variableType> = <value>; # assignation
+<variableName>: = <variableType>(<value>) # assignation
+<variableName>: = <value> # assignation of auto type
+<variableName>: const = <value> # assignation of const auto variable
+
+i: I32; # declaration
+i: I32 = 0; # assignation
+i:= I32(0) # assignation
+i:= 0 # assignation of auto type
+i: I32(0) # assignation (remove unused equal sign)
+i: 0 # assignation of auto type (remove unused equal sign)
+i: const = 0 # assignation of const auto variable
+
+# ------------------------------------- range-based for Loop
+for <variableName> in <containerName> {}
+for <variableName>: in <containerName> {}
+for <variableName>: <variableType> in <containerName> {}
+for <variableName>: <variableType> in Range(<Begin>, <End>, <Incrementation>) {}
+
+# ------------------------------------- for Loop
+for <variableName>: <variableType>; <condition> {}
+for <variableName>: <variableType>; <condition>; <incrementation> {}
+
+# ------------------------------------- while Loop
+while <condition> {}
+while <variableName>: <variableType>; <condition> {}
+while <variableName>: <variableType>; <condition>; <incrementation> {}
+
+# ------------------------------------- Loop first and last iteration
+for i in range(5)
+    first {} # works like functions, called with the first member
+    last {} # works like functions, called with the last member
+{}
+
+# ------------------------------------- class
+# class <className> IS a <baseClass>
+class <className>
+    : <baseClass> # inheritance
+{
+    __new() {} # constructor
+    __delete() {} # destructor
+
+    __new_copy() {other} # copy constructor
+    __copy(other) # copy
+    __new_move(other) {} # move constructor
+    __move(other) # move
+    __swap(other) # swap
+
+    __op +(other) # + add
+    __op -(other) # - sub
+    __op *(other) # * mul
+    __op /(other) # / div
+    __op %(other) # % mod
+    __op **(other) # ** pow
+
+    __op =+(other) # =+ add
+    __op =-(other) # =- sub
+    __op =*(other) # =* mul
+    __op =/(other) # =/ div
+    __op =%(other) # =% mod
+    __op =**(other) # =** pow
+
+    __type <TypeName>(other) # convert to <TypeName>
+
+    __print(other) # print formating
+}
+
+# ------------------------------------- action inheritage
+# class <className> CAN do <baseAction>
+ability <abilityName>() {
+    listen[outString](inString) { outString = outstring }
+    say[personName](sentence) { print("{} says {}", personName, sentence); }
+}
+class <className> {
+    say = Person::say;
+}
