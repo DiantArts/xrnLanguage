@@ -1,7 +1,9 @@
 # xrnLanguage
 [![Continous Integration](https://github.com/DiantArts/xrnLanguage/actions/workflows/continuous-integration.yml/badge.svg)](https://github.com/DiantArts/xrnLanguage/actions/workflows/continuous-integration.yml)
 
-Here is an example of the syntax:
+This project is a programming language inspired from C, C++, Carbon and Haskell
+
+Here is an example of the syntax so far:
 ```
 import Math;
 

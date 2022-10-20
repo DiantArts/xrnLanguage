@@ -4,9 +4,9 @@
 
 runProgram() (
     if [ ${buildType} = Debug ]; then
-        valgrind ./${binaryPath} || exit $?
+        valgrind ./${binaryPath} .tests/example.xrn || exit $?
     else
-        ./${binaryPath} || exit $?
+        ./${binaryPath} .tests/example.xrn || exit $?
     fi
 )
 
