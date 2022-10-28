@@ -74,6 +74,7 @@ void ::xrn::language::Lexer::run(
                 }
             }
         }
+        program.proposeMaxCharacterNumber(xPos);
     }
 }
 

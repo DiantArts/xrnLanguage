@@ -44,7 +44,7 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     explicit Program(
-        const ::std::vector<::std::string>& file
+        const ::std::string& file
     ) noexcept;
 
 
@@ -89,16 +89,27 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void addError(
-        ::std::shared_ptr<::xrn::language::AToken>& token,
-        const ::std::string& message
+        ::std::shared_ptr<::xrn::language::AToken> token,
+        const ::std::string& message,
+        const ::std::string& compilerHelp = ""
     );
 
     ///////////////////////////////////////////////////////////////////////////
     ///
     ///////////////////////////////////////////////////////////////////////////
     void addWarning(
-        ::std::shared_ptr<::xrn::language::AToken>& token,
-        const ::std::string& message
+        ::std::shared_ptr<::xrn::language::AToken> token,
+        const ::std::string& message,
+        const ::std::string& compilerHelp = ""
+    );
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    void addNote(
+        ::std::shared_ptr<::xrn::language::AToken> token,
+        const ::std::string& message,
+        const ::std::string& compilerHelp = ""
     );
 
     ///////////////////////////////////////////////////////////////////////////
@@ -111,6 +122,13 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     void printError() const;
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    void proposeMaxCharacterNumber(
+        ::std::size_t
+    );
 
 
 
@@ -164,11 +182,16 @@ public:
 
 private:
 
+    ::std::string m_filepath;
+    ::std::size_t m_maxCharacterNumber;
     ::std::vector<::std::string> m_lines;
     ::std::vector<::std::string> m_functions;
     ::std::vector<::std::string> m_variables;
     ::std::vector<::std::tuple<
-        ::std::shared_ptr<::xrn::language::AToken>, ::std::string, Program::ErrorLevel
+        ::std::shared_ptr<::xrn::language::AToken>,
+        ::std::string,
+        Program::ErrorLevel,
+        ::std::string
     >> m_error;
     ::xrn::language::TokenPool m_tokens;
 

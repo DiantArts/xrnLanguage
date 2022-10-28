@@ -22,5 +22,18 @@ auto ::xrn::language::Compiler::run(
     ::xrn::language::Program& program
 ) -> bool
 {
-    return true;
+    ::std::vector<::std::string> functions;
+
+    for (auto& tokenPtr : program.getTokens()) {
+        if (tokenPtr->isType(::xrn::language::token::Type::FUNCTION)) {
+            // is the function declared
+            if (std::ranges::find(functions, tokenPtr->getValueAsString()) == functions.end()) {
+                program.addError(
+                    tokenPtr,
+                    "Use of undeclared function '"s + tokenPtr->getValueAsString() + "'"
+                );
+            }
+        }
+    }
+    return !program.hasError();
 }

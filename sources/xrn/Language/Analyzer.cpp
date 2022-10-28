@@ -46,7 +46,6 @@ auto ::xrn::language::Analyzer::processNumbers(
     auto& tokenPool{ program.getTokens() };
     for (auto i{ 0uz }; i < tokenPool.size(); ++i) {
         auto& tokenPtr{ tokenPool[i] };
-        program.addError(tokenPtr, "lol incorrect");
         switch (tokenPtr->getType()) {
         case ::xrn::language::token::Type::I8:
             tokenPtr = ::std::make_shared<::xrn::language::token::Int8>(::std::move(*tokenPtr));

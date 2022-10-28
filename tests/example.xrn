@@ -1,4 +1,4 @@
-add (a: Int, b: Int) -> Int {
+add(a: Int, b: Int) -> Int {
     return a + b;
 }
 
