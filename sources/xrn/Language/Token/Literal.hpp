@@ -55,7 +55,7 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     [[ nodiscard ]] auto getValueAsString() const
-        -> const ::std::string& override;
+        -> ::std::string override;
 
 
 
@@ -81,4 +81,4 @@ protected:
 
 };
 
-} // namespace xrn::language
+} // namespace xrn::language::token

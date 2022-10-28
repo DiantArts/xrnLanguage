@@ -83,6 +83,39 @@ auto ::xrn::language::AToken::isNumber() const
 }
 
 ///////////////////////////////////////////////////////////////////////////
+auto ::xrn::language::AToken::isFloatingPoint() const
+    -> bool
+{
+    switch (m_type) {
+    case ::xrn::language::token::Type::FLOAT_LITERAL:
+    case ::xrn::language::token::Type::F8:
+    case ::xrn::language::token::Type::F16:
+    case ::xrn::language::token::Type::F32:
+    case ::xrn::language::token::Type::F64:
+        return true;
+    default:
+        return false;
+    };
+}
+
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::language::AToken::isInteger() const
+    -> bool
+{
+    switch (m_type) {
+    case ::xrn::language::token::Type::INT_LITERAL:
+    case ::xrn::language::token::Type::I8:
+    case ::xrn::language::token::Type::I16:
+    case ::xrn::language::token::Type::I32:
+    case ::xrn::language::token::Type::I64:
+    case ::xrn::language::token::Type::SIZE:
+        return true;
+    default:
+        return false;
+    };
+}
+
+///////////////////////////////////////////////////////////////////////////
 auto ::xrn::language::AToken::isType(
     ::xrn::language::token::Type comparativeType
 ) const
@@ -123,6 +156,24 @@ auto ::xrn::language::AToken::getAsString() const
 
     ret += '>';
     return ret;
+}
+
+///////////////////////////////////////////////////////////////////////////
+///
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::language::AToken::getLineNumber() const
+    -> ::std::size_t
+{
+    return m_lineNumber;
+}
+
+///////////////////////////////////////////////////////////////////////////
+///
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::language::AToken::getCharacterNumber() const
+    -> ::std::size_t
+{
+    return m_characterNumber;
 }
 
 

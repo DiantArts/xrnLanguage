@@ -42,7 +42,7 @@
 ///
 ///////////////////////////////////////////////////////////////////////////
 [[ nodiscard ]] auto ::xrn::language::token::Literal::getValueAsString() const
-    -> const ::std::string&
+    -> ::std::string
 {
     return m_value;
 }

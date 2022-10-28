@@ -25,7 +25,14 @@ enum Type {
     STRING, // s, ""
     CHARACTER, // ''
     TYPE_SPECIFIER,
-    SPECIAL_MEMBER_FUNCTION, // __*__
+    FUNCTION,
+    FUNCTION_DECLARATION,
+    FUNCTION_DEFINITION,
+    FUNCTION_CALL,
+    SPECIAL_MEMBER_FUNCTION, // __*
+    SPECIAL_MEMBER_FUNCTION_DECLARATION, // __*
+    SPECIAL_MEMBER_FUNCTION_DEFINITION, // __*
+    SPECIAL_MEMBER_FUNCTION_CALL, // __*
     LINE_COMMENT, // #
     MULTI_LINE_COMMENT, // #* *#
 
@@ -47,7 +54,7 @@ enum Type {
 ///
 ///////////////////////////////////////////////////////////////////////////
 static inline constexpr const ::std::string_view TypeStr[]{
-    "invalid",
+    "invalid = 0",
     "keyword",
     "operator",
     "comparator",
@@ -58,20 +65,27 @@ static inline constexpr const ::std::string_view TypeStr[]{
     "string",
     "character",
     "type_specifier",
+    "function",
+    "function_declaration",
+    "function_definition",
+    "function_call",
     "special_member_function",
+    "special_member_function_declaration",
+    "special_member_function_definition",
+    "special_member_function_call",
     "line_comment",
     "multi_line_comment",
-    "Int_litteral",
-    "Float_litteral",
-    "I8",
-    "I16",
-    "I32",
-    "I64",
-    "F8",
-    "F16",
-    "F32",
-    "F64",
-    "Size",
+    "int_literal",
+    "float_literal",
+    "i8",
+    "i16",
+    "i32",
+    "i64",
+    "f8",
+    "f16",
+    "f32",
+    "f64",
+    "size",
 };
 
 } // namespace xrn::language::token
@@ -177,7 +191,7 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     [[ nodiscard ]] virtual auto getValueAsString() const
-        -> const ::std::string& = 0;
+        -> ::std::string = 0;
 
 
 
@@ -192,6 +206,18 @@ public:
     ///
     ///////////////////////////////////////////////////////////////////////////
     [[ nodiscard ]] auto isNumber() const
+        -> bool;
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    [[ nodiscard ]] auto isFloatingPoint() const
+        -> bool;
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    [[ nodiscard ]] auto isInteger() const
         -> bool;
 
     ///////////////////////////////////////////////////////////////////////////
@@ -229,6 +255,18 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     [[ nodiscard ]] auto getAsString() const
         -> ::std::string;
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    [[ nodiscard ]] auto getLineNumber() const
+        -> ::std::size_t;
+
+    ///////////////////////////////////////////////////////////////////////////
+    ///
+    ///////////////////////////////////////////////////////////////////////////
+    [[ nodiscard ]] auto getCharacterNumber() const
+        -> ::std::size_t;
 
 
 

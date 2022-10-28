@@ -18,53 +18,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-::xrn::language::Expression::Expression() noexcept = default;
+::xrn::language::TokenPool::TokenPool() noexcept = default;
 
 ///////////////////////////////////////////////////////////////////////////
-::xrn::language::Expression::Expression(
-    Expression::Type&& expression
+::xrn::language::TokenPool::TokenPool(
+    TokenPool::Type&& expression
 ) noexcept
     : m_expression{ ::std::move(expression) }
 {}
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////
-// Comparisons
-//
-///////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-/// \brief Is the expression complete
-///
-/// Check if the expression ends with a ';'
-///
-///////////////////////////////////////////////////////////////////////////
-[[ nodiscard ]] auto ::xrn::language::Expression::isComplete()
-    -> bool
-{
-    if (!m_expression.size()) {
-        return false;
-    }
-    auto& back{ *m_expression.back() };
-    return back.getType() == ::xrn::language::token::Type::SEPARATOR && (
-            back.getValueAsString() == ";" ||
-            back.getValueAsString() == "{" ||
-            back.getValueAsString() == "}"
-        );
-}
-
-///////////////////////////////////////////////////////////////////////////
-/// \brief Is the expression syntactically valid
-///
-///////////////////////////////////////////////////////////////////////////
-[[ nodiscard ]] auto ::xrn::language::Expression::isValid()
-    -> bool
-{
-    return false;
-}
 
 
 
@@ -76,43 +37,58 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::xrn::language::Expression::begin()
-    -> Expression::Type::iterator
+auto ::xrn::language::TokenPool::begin()
+    -> TokenPool::Type::iterator
 {
     return m_expression.begin();
 }
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::xrn::language::Expression::begin() const
-    -> Expression::Type::const_iterator
+auto ::xrn::language::TokenPool::begin() const
+    -> TokenPool::Type::const_iterator
 {
     return m_expression.begin();
 }
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::xrn::language::Expression::cbegin() const
-    -> Expression::Type::const_iterator
+auto ::xrn::language::TokenPool::cbegin() const
+    -> TokenPool::Type::const_iterator
 {
     return m_expression.cbegin();
 }
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::xrn::language::Expression::end()
-    -> Expression::Type::iterator
+auto ::xrn::language::TokenPool::end()
+    -> TokenPool::Type::iterator
 {
     return m_expression.end();
 }
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::xrn::language::Expression::end() const
-    -> Expression::Type::const_iterator
+auto ::xrn::language::TokenPool::end() const
+    -> TokenPool::Type::const_iterator
 {
     return m_expression.end();
 }
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::xrn::language::Expression::cend() const
-    -> Expression::Type::const_iterator
+auto ::xrn::language::TokenPool::cend() const
+    -> TokenPool::Type::const_iterator
 {
     return m_expression.cend();
+}
+
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::language::TokenPool::size() const
+    -> ::std::size_t
+{
+    return m_expression.size();
+}
+
+///////////////////////////////////////////////////////////////////////////
+auto ::xrn::language::TokenPool::operator[](
+    ::std::size_t i
+) -> ::std::shared_ptr<TokenPool::SubType>&
+{
+    return m_expression[i];
 }

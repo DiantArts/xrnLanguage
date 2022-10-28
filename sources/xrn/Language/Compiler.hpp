@@ -48,9 +48,9 @@ public:
     /// Parses the program's strings and set the tokens
     ///
     ///////////////////////////////////////////////////////////////////////////
-    static void run(
+    [[ nodiscard ]] static auto run(
         ::xrn::language::Program& program
-    ) noexcept;
+    ) -> bool;
 
 private:
 

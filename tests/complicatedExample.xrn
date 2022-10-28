@@ -1,0 +1,23 @@
+import Math;
+
+class Circle {
+    r: F32;
+}
+
+printTotalArea(circles: View<Circle>) {
+    area: F32 = 0;
+    for c in circles {
+        area += Math.pi * Math.square(c.r);
+    }
+    print("Total area
+            {}", #* arg
+            number 1 *# area); # fmt syntax
+}
+
+main(argv) {
+    circles: Vector<Circle> =
+        (.r = 1'0.0F32),
+        (.r = 20.0'F32);
+    printTotalArea(circles);
+    return 0;
+}

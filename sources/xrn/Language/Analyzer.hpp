@@ -67,16 +67,16 @@ private:
     /// E.G.: 1f is processed to 1.0 float
     ///
     ///////////////////////////////////////////////////////////////////////////
-    [[ nodiscard ]] static auto processLiterals(
-        ::xrn::language::Expression& expression
+    static auto processNumbers(
+        ::xrn::language::Program& program
     ) -> bool;
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief Process the math expressions
     ///
     ///////////////////////////////////////////////////////////////////////////
-    [[ nodiscard ]] static auto processMathExpressions(
-        ::xrn::language::Expression& expression
+    static auto processMathExpressions(
+        ::xrn::language::Program& program
     ) -> bool;
 
 

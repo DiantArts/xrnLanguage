@@ -34,6 +34,85 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
+///
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::language::Program::addError(
+    ::std::shared_ptr<::xrn::language::AToken>& token,
+    const ::std::string& message
+)
+{
+    m_error.push_back(::std::tuple<
+        ::std::shared_ptr<::xrn::language::AToken>, ::std::string, Program::ErrorLevel
+    >(token, message, Program::ErrorLevel::ERROR));
+}
+
+///////////////////////////////////////////////////////////////////////////
+///
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::language::Program::addWarning(
+    ::std::shared_ptr<::xrn::language::AToken>& token,
+    const ::std::string& message
+)
+{
+    m_error.push_back(::std::tuple<
+        ::std::shared_ptr<::xrn::language::AToken>, ::std::string, Program::ErrorLevel
+    >(token, message, Program::ErrorLevel::WARNING));
+}
+
+///////////////////////////////////////////////////////////////////////////
+///
+///////////////////////////////////////////////////////////////////////////
+[[ nodiscard ]] auto ::xrn::language::Program::hasError() const
+    -> bool
+{
+    for (const auto& [ tokenPtr, message, errorLevel ] : m_error) {
+        if (errorLevel == Program::ErrorLevel::ERROR) {
+            return true;
+        }
+    }
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////
+///
+///////////////////////////////////////////////////////////////////////////
+void ::xrn::language::Program::printError() const
+{
+    for (const auto& [ tokenPtr, message, errorLevel ] : m_error) {
+        ::fmt::print(
+            ::fmt::emphasis::bold | ::fmt::fg(::fmt::terminal_color::white), "{}:{}:{} ",
+            "some/file/path.xrn", tokenPtr->getLineNumber() + 1, tokenPtr->getCharacterNumber() + 1
+        );
+        switch (errorLevel) {
+        case Program::ErrorLevel::NOTE:
+        case Program::ErrorLevel::WARNING:
+        case Program::ErrorLevel::ERROR:
+            ::fmt::print(
+                ::fmt::emphasis::bold | ::fmt::fg(::fmt::terminal_color::bright_red), "error:"
+            );
+        };
+        ::fmt::print(::fmt::emphasis::bold, " {}\n", message);
+        ::fmt::print("    {}\n", m_lines[tokenPtr->getLineNumber()]);
+        ::std::string arrow;
+        arrow.insert(0, tokenPtr->getCharacterNumber(), ' ');
+        arrow.insert(tokenPtr->getCharacterNumber(), 1, '^');
+        arrow.insert(tokenPtr->getCharacterNumber() + 1, tokenPtr->getValueAsString().size() - 1, '~');
+        ::fmt::print(
+            ::fmt::emphasis::bold | ::fmt::fg(fmt::terminal_color::bright_green), "    {}\n", arrow
+        );
+    }
+}
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+// Getters/Setters
+//
+///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
 [[ nodiscard ]] auto ::xrn::language::Program::getLines() const
     -> const ::std::vector<::std::string>&
 {
@@ -41,25 +120,25 @@
 }
 
 ///////////////////////////////////////////////////////////////////////////
-[[ nodiscard ]] auto ::xrn::language::Program::getExpressions() const
-    -> const ::std::vector<::xrn::language::Expression>&
+[[ nodiscard ]] auto ::xrn::language::Program::getTokens() const
+    -> const ::xrn::language::TokenPool&
 {
-    return m_expressions;
+    return m_tokens;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-[[ nodiscard ]] auto ::xrn::language::Program::getExpressions()
-    -> ::std::vector<::xrn::language::Expression>&
+[[ nodiscard ]] auto ::xrn::language::Program::getTokens()
+    -> ::xrn::language::TokenPool&
 {
-    return m_expressions;
+    return m_tokens;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-void ::xrn::language::Program::setExpressions(
-    ::std::vector<::xrn::language::Expression>&& expressions
+void ::xrn::language::Program::setTokens(
+    ::xrn::language::TokenPool&& expressions
 )
 {
-    m_expressions = ::std::move(expressions);
+    m_tokens = ::std::move(expressions);
 }
 
 
@@ -74,15 +153,12 @@ void ::xrn::language::Program::setExpressions(
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::language::Program::printTokens() const
 {
-    for (const auto& expression : m_expressions) {
-
-        for (const auto& tokenPtr : expression) {
-            if (tokenPtr) {
-                ::fmt::print("{} ", tokenPtr->getAsString());
-            } else {
-                ::fmt::print("<INVALID> ");
-            }
+    for (const auto& tokenPtr : m_tokens) {
+        if (tokenPtr) {
+            ::fmt::print("{} ", tokenPtr->getAsString());
+        } else {
+            ::fmt::print("<INVALID> ");
         }
-        ::fmt::print("\n");
     }
+    ::fmt::print("\n");
 }

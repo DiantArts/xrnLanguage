@@ -23,15 +23,58 @@ void ::xrn::language::Lexer::run(
 ) noexcept
 {
     auto lines{ program.getLines() };
-    ::std::vector<::xrn::language::Expression> expressions;
+    auto& tokens{ program.getTokens() };
+    ::std::size_t xPos{ 0 };
 
     for (auto i{ 0uz }; i < lines.size(); ++i) {
-        if (!lines[i].empty()) {
-            expressions.push_back(Lexer::extractExpression(lines, i));
+        xPos = 0;
+        while (!lines[i].empty()) {
+            xPos += Lexer::lstrip(lines[i]);
+            if (!lines[i].empty()) {
+                ::std::string tokenValue;
+                ::xrn::language::token::Type tokenType;
+                Lexer::extractToken(lines[i], tokenValue, tokenType, i, xPos);
+
+                switch (tokenType) {
+                case ::xrn::language::token::Type::LINE_COMMENT: {
+                    lines[i].erase(0, lines[i].size());
+                    break;
+                } case ::xrn::language::token::Type::MULTI_LINE_COMMENT: {
+                    tokenValue += Lexer::skipTillNextChar(lines, i, xPos, ::xrn::language::detail::endMultilineComments);
+                    lines[i].erase(0, xPos);
+                    break;
+                } case ::xrn::language::token::Type::STRING: {
+                    tokenValue += Lexer::skipTillNextChar(lines, i, xPos, ::xrn::language::detail::strings);
+                    tokenValue.erase(0, 1);
+                    if (tokenValue.size()) {
+                        tokenValue.erase(tokenValue.size() - 1);
+                    }
+                    lines[i].erase(0, xPos);
+                    tokens.add(::std::make_shared<::xrn::language::token::Literal>(
+                        tokenType, tokenValue, i, xPos
+                    ));
+                    break;
+                } case ::xrn::language::token::Type::CHARACTER: {
+                    tokenValue += Lexer::skipTillNextChar(lines, i, xPos, ::xrn::language::detail::characters);
+                    tokenValue.erase(0, 1);
+                    if (tokenValue.size()) {
+                        tokenValue.erase(tokenValue.size() - 1);
+                    }
+                    lines[i].erase(0, xPos);
+                    tokens.add(::std::make_shared<::xrn::language::token::Literal>(
+                        tokenType, tokenValue, i, xPos
+                    ));
+                    break;
+                } default:
+                    tokens.add(::std::make_shared<::xrn::language::token::Literal>(
+                        tokenType, tokenValue, i, xPos
+                    ));
+                    xPos += tokenValue.size();
+                    break;
+                }
+            }
         }
     }
-
-    program.setExpressions(::std::move(expressions));
 }
 
 
@@ -42,70 +85,6 @@ void ::xrn::language::Lexer::run(
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-auto ::xrn::language::Lexer::extractExpression(
-    ::std::vector<::std::string>& lines,
-    ::std::size_t& i
-) -> ::xrn::language::Expression
-{
-    ::xrn::language::Expression expression;
-    ::std::size_t xPos{ Lexer::lstrip(lines[i]) };
-    while (!expression.isComplete()) {
-        if (lines[i].empty()) {
-            if (i < lines.size() - 1) {
-                ++i;
-            } else {
-                break;
-            }
-        }
-
-        ::std::string tokenValue;
-        ::xrn::language::token::Type tokenType;
-        Lexer::extractToken(lines[i], tokenValue, tokenType, i, xPos);
-
-        switch (tokenType) {
-        case ::xrn::language::token::Type::LINE_COMMENT: {
-            lines[i].erase(0, lines[i].size());
-            break;
-        } case ::xrn::language::token::Type::MULTI_LINE_COMMENT: {
-            tokenValue += Lexer::skipTillNextChar(lines, i, xPos, ::xrn::language::detail::endMultilineComments);
-            lines[i].erase(0, xPos);
-            break;
-        } case ::xrn::language::token::Type::STRING: {
-            tokenValue += Lexer::skipTillNextChar(lines, i, xPos, ::xrn::language::detail::strings);
-            tokenValue.erase(0, 1);
-            if (tokenValue.size()) {
-                tokenValue.erase(tokenValue.size() - 1);
-            }
-            lines[i].erase(0, xPos);
-            expression.add(::std::make_unique<::xrn::language::token::Literal>(
-                tokenType, tokenValue, i, xPos
-            ));
-            break;
-        } case ::xrn::language::token::Type::CHARACTER: {
-            tokenValue += Lexer::skipTillNextChar(lines, i, xPos, ::xrn::language::detail::characters);
-            tokenValue.erase(0, 1);
-            if (tokenValue.size()) {
-                tokenValue.erase(tokenValue.size() - 1);
-            }
-            lines[i].erase(0, xPos);
-            expression.add(::std::make_unique<::xrn::language::token::Literal>(
-                tokenType, tokenValue, i, xPos
-            ));
-            break;
-        } default:
-            expression.add(::std::make_unique<::xrn::language::token::Literal>(
-                tokenType, tokenValue, i, xPos
-            ));
-            xPos += tokenValue.size();
-            break;
-        }
-        xPos += Lexer::lstrip(lines[i]);
-
-    }
-    return expression;
-}
 
 ///////////////////////////////////////////////////////////////////////////
 void ::xrn::language::Lexer::extractToken(
@@ -141,10 +120,10 @@ auto ::xrn::language::Lexer::skipTillNextChar(
     ::std::vector<::std::string>& lines,
     ::std::size_t& yRef,
     ::std::size_t& xRef,
-    ::std::vector<::std::string_view> vec
+    const ::std::vector<::std::string>& vec
 ) -> ::std::string
 {
-    for (auto& str : vec) {
+    for (const auto& str : vec) {
         ::std::size_t count{ 0 };
         ::std::string ret;
 
@@ -175,8 +154,11 @@ auto ::xrn::language::Lexer::matchIdentifiersAndKeywords(
     ::xrn::language::token::Type& tokenType
 ) -> bool
 {
-    if (::std::smatch regexMatch; Lexer::startsWith(str, regexMatch, "^[a-zA-Z][a-zA-Z0-9]*")) {
-        tokenValue = str.substr(0, regexMatch.str().size());
+    if (::std::smatch regexMatch; Lexer::startsWith(str, regexMatch, "^[a-zA-Z][a-zA-Z0-9]*\\s*[(]")) {
+        tokenValue = str.substr(0, regexMatch.str().size() - 1);
+        if (const auto strIt{ tokenValue.find_last_not_of(" \t") }; strIt != ::std::string::npos) {
+            tokenValue.erase(strIt + 1);
+        }
         str.erase(0, tokenValue.size());
 
         for (const auto& elem : ::xrn::language::detail::keywords) {
@@ -185,9 +167,15 @@ auto ::xrn::language::Lexer::matchIdentifiersAndKeywords(
                 return true;
             }
         }
-        for (const auto& elem : ::xrn::language::detail::specialMemberFunctions) {
+        tokenType = ::xrn::language::token::Type::FUNCTION;
+        return true;
+    } else if (Lexer::startsWith(str, regexMatch, "^[a-zA-Z][a-zA-Z0-9]*")) {
+        tokenValue = str.substr(0, regexMatch.str().size());
+        str.erase(0, tokenValue.size());
+
+        for (const auto& elem : ::xrn::language::detail::keywords) {
             if (tokenValue == elem) {
-                tokenType = ::xrn::language::token::Type::SPECIAL_MEMBER_FUNCTION;
+                tokenType = ::xrn::language::token::Type::KEYWORD;
                 return true;
             }
         }
@@ -208,17 +196,17 @@ auto ::xrn::language::Lexer::matchNumbers(
     ::std::smatch regexMatch;
 
     // float with litterals
-    if (Lexer::startsWith(str, regexMatch, "^[+-]?[0-9'_]*[.][0-9'_]*[0-9][a-zA-Z][a-zA-Z0-9]*")) {
-        if (!(str.size() < regexMatch.str().size() && ::std::isdigit(str[regexMatch.str().size()]))) {
-            tokenValue = str.substr(0, regexMatch.str().size());
-            str.erase(0, tokenValue.size());
-            tokenType = ::xrn::language::token::Type::FLOAT_LITERAL;
-            return true;
-        }
-    }
+    // if (Lexer::startsWith(str, regexMatch, "^[0-9'_]*[.][0-9'_]*[0-9][a-zA-Z][a-zA-Z0-9]*")) {
+        // if (!(str.size() < regexMatch.str().size() && ::std::isdigit(str[regexMatch.str().size()]))) {
+            // tokenValue = str.substr(0, regexMatch.str().size());
+            // str.erase(0, tokenValue.size());
+            // tokenType = ::xrn::language::token::Type::FLOAT_LITERAL;
+            // return true;
+        // }
+    // }
 
     // float
-    if (Lexer::startsWith(str, regexMatch, "^[+-]?[0-9'_]*[.][0-9'_]*[0-9]")) {
+    if (Lexer::startsWith(str, regexMatch, "^[0-9'_]*[.][0-9'_]*[0-9]")) {
         if (!(str.size() < regexMatch.str().size() && ::std::isdigit(str[regexMatch.str().size()]))) {
             tokenValue = str.substr(0, regexMatch.str().size());
             str.erase(0, tokenValue.size());
@@ -228,17 +216,17 @@ auto ::xrn::language::Lexer::matchNumbers(
     }
 
     // int with litterals
-    if (Lexer::startsWith(str, regexMatch, "^[+-]?[0-9'_]*[0-9][a-zA-Z][a-zA-Z0-9]*")) {
-        if (!(str.size() < regexMatch.str().size() && ::std::isdigit(str[regexMatch.str().size()]))) {
-            tokenValue = str.substr(0, regexMatch.str().size());
-            str.erase(0, tokenValue.size());
-            tokenType = ::xrn::language::token::Type::INT_LITERAL;
-            return true;
-        }
-    }
+    // if (Lexer::startsWith(str, regexMatch, "^[0-9'_]*[0-9][a-zA-Z][a-zA-Z0-9]*")) {
+        // if (!(str.size() < regexMatch.str().size() && ::std::isdigit(str[regexMatch.str().size()]))) {
+            // tokenValue = str.substr(0, regexMatch.str().size());
+            // str.erase(0, tokenValue.size());
+            // tokenType = ::xrn::language::token::Type::INT_LITERAL;
+            // return true;
+        // }
+    // }
 
     // int
-    if (Lexer::startsWith(str, regexMatch, "^[+-]?[0-9'_]*[0-9]")) {
+    if (Lexer::startsWith(str, regexMatch, "^[0-9'_]*[0-9]")) {
         if (!(str.size() < regexMatch.str().size() && ::std::isdigit(str[regexMatch.str().size()]))) {
             tokenValue = str.substr(0, regexMatch.str().size());
             str.erase(0, tokenValue.size());
@@ -255,7 +243,7 @@ auto ::xrn::language::Lexer::matchWithList(
     ::std::string& str,
     ::std::string& tokenValue,
     ::xrn::language::token::Type& tokenType,
-    const ::std::vector<::std::string_view>& vec,
+    const ::std::vector<::std::string>& vec,
     ::xrn::language::token::Type searchingTokenType
 ) -> bool
 {
@@ -286,7 +274,7 @@ auto ::xrn::language::Lexer::matchWithList(
     ::std::string& str,
     ::std::string& tokenValue,
     ::xrn::language::token::Type& tokenType,
-    const ::std::map<::std::string_view, ::std::uint8_t>& map,
+    const ::std::map<::std::string, ::std::uint8_t>& map,
     ::xrn::language::token::Type searchingTokenType
 ) -> bool
 {

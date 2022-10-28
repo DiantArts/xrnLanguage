@@ -7,6 +7,8 @@
 // Headers
 ///////////////////////////////////////////////////////////////////////////
 #include <xrn/Language/Analyzer.hpp>
+#include <xrn/Language/Token/Number.hpp>
+#include <xrn/Language/Math.hpp>
 
 
 
@@ -22,15 +24,9 @@ auto ::xrn::language::Analyzer::run(
     ::xrn::language::Program& program
 ) -> bool
 {
-    for (auto& expression : program.getExpressions()) {
-        if (
-            !Analyzer::processLiterals(expression) ||
-            !Analyzer::processMathExpressions(expression)
-        ) {
-            return false;
-        }
-    }
-    return true;
+    Analyzer::processNumbers(program);
+    Analyzer::processMathExpressions(program);
+    return !program.hasError();
 }
 
 
@@ -43,15 +39,40 @@ auto ::xrn::language::Analyzer::run(
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-auto ::xrn::language::Analyzer::processLiterals(
-    ::xrn::language::Expression& expression
+auto ::xrn::language::Analyzer::processNumbers(
+    ::xrn::language::Program& program
 ) -> bool
 {
-    for (auto& tokenPtr : expression) {
-        if (tokenPtr->isType(::xrn::language::token::Type::INT_LITERAL)) {
-            ::fmt::print("{}\n", tokenPtr->getValueAsString());
-        } else if (tokenPtr->isType(::xrn::language::token::Type::FLOAT_LITERAL)) {
-            ::fmt::print("{}\n", tokenPtr->getValueAsString());
+    auto& tokenPool{ program.getTokens() };
+    for (auto i{ 0uz }; i < tokenPool.size(); ++i) {
+        auto& tokenPtr{ tokenPool[i] };
+        program.addError(tokenPtr, "lol incorrect");
+        switch (tokenPtr->getType()) {
+        case ::xrn::language::token::Type::I8:
+            tokenPtr = ::std::make_shared<::xrn::language::token::Int8>(::std::move(*tokenPtr));
+            continue;
+        case ::xrn::language::token::Type::I16:
+            tokenPtr = ::std::make_shared<::xrn::language::token::Int16>(::std::move(*tokenPtr));
+            continue;
+        case ::xrn::language::token::Type::I32:
+            tokenPtr = ::std::make_shared<::xrn::language::token::Int32>(::std::move(*tokenPtr));
+            continue;
+        case ::xrn::language::token::Type::I64:
+            tokenPtr = ::std::make_shared<::xrn::language::token::Int64>(::std::move(*tokenPtr));
+            continue;
+        case ::xrn::language::token::Type::F8:
+            tokenPtr = ::std::make_shared<::xrn::language::token::Float8>(::std::move(*tokenPtr));
+            continue;
+        case ::xrn::language::token::Type::F16:
+            tokenPtr = ::std::make_shared<::xrn::language::token::Float16>(::std::move(*tokenPtr));
+            continue;
+        case ::xrn::language::token::Type::F32:
+            tokenPtr = ::std::make_shared<::xrn::language::token::Float32>(::std::move(*tokenPtr));
+            continue;
+        case ::xrn::language::token::Type::F64:
+            tokenPtr = ::std::make_shared<::xrn::language::token::Float64>(::std::move(*tokenPtr));
+            continue;
+        default: break;
         }
     }
     return true;
@@ -59,17 +80,10 @@ auto ::xrn::language::Analyzer::processLiterals(
 
 ///////////////////////////////////////////////////////////////////////////
 auto ::xrn::language::Analyzer::processMathExpressions(
-    ::xrn::language::Expression& expression
+    ::xrn::language::Program& program
 ) -> bool
 {
-    ::std::queue<::std::string> outputs;
-    ::std::stack<::std::string> operators;
-    for (auto& tokenPtr : expression) {
-        if (tokenPtr->isNumber()) {
-            outputs.push(tokenPtr->getValueAsString());
-        } else if (tokenPtr->isType(::xrn::language::token::Type::OPERATOR)) {
-            operators.push(tokenPtr->getValueAsString());
-        }
-    }
+    auto& tokenPool{ program.getTokens() };
     return true;
+    ::fmt::print("{}\n", ::xrn::language::Math::computeMathExpression(tokenPool)->getAsString());
 }

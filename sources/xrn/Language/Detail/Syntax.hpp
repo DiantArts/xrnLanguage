@@ -2,17 +2,17 @@
 
 namespace xrn::language::detail {
 
-static inline const ::std::vector<::std::string_view> keywords{
+static inline const ::std::vector<::std::string> keywords{
     "Int", "I8", "I16", "I32", "I64",
     "Float", "F8", "F16", "F32", "F64",
     "Char", "Bool", "true", "false", "Size", "String", "Auto",
     "Vector", "Array", "View",
     "class", "ability",
-    "if", "else", "for", "while", "in",
+    "if", "else", "for", "while", "in", "return",
     "import", "export"
 };
 
-static inline const ::std::vector<::std::string_view> specialMemberFunctions{
+static inline const ::std::vector<::std::string> specialMemberFunctions{
     "__new",
     "__delete",
     "__new_copy",
@@ -25,7 +25,7 @@ static inline const ::std::vector<::std::string_view> specialMemberFunctions{
 };
 
 // value, precedent
-static inline const ::std::map<::std::string_view, ::std::uint8_t> operators{
+static inline const ::std::map<::std::string, ::std::uint8_t> operators{
     { "!", 2 },
     { "*", 3 },
     { "/", 3 },
@@ -35,7 +35,7 @@ static inline const ::std::map<::std::string_view, ::std::uint8_t> operators{
     { "=", 14 }
 };
 
-static inline const ::std::map<::std::string_view, ::std::uint8_t> comparators{
+static inline const ::std::map<::std::string, ::std::uint8_t> comparators{
     { ">", 6 },
     { ">=", 6 },
     { "<", 6 },
@@ -45,12 +45,12 @@ static inline const ::std::map<::std::string_view, ::std::uint8_t> comparators{
     { "&", 11 }, // logical and
     { "|", 12 } // logical or
 };
-static inline const ::std::map<::std::string_view, ::std::uint8_t> accessors{
+static inline const ::std::map<::std::string, ::std::uint8_t> accessors{
     { ".", 1 },
     { "->", 1 },
     { "::", 1 }
 };
-static inline const ::std::map<::std::string_view, ::std::uint8_t> separators{
+static inline const ::std::map<::std::string, ::std::uint8_t> separators{
     { "(", 1 },
     { "[", 1 },
     { "{", 0 },
@@ -62,10 +62,10 @@ static inline const ::std::map<::std::string_view, ::std::uint8_t> separators{
     { ",", 15 }
 };
 
-static inline const ::std::vector<::std::string_view> strings{ "\"" };
-static inline const ::std::vector<::std::string_view> characters{ "'" };
-static inline const ::std::vector<::std::string_view> lineComments{ "#" };
-static inline const ::std::vector<::std::string_view> beginMultiLineComments{ "#*" };
-static inline const ::std::vector<::std::string_view> endMultilineComments{ "*#" };
+static inline const ::std::vector<::std::string> strings{ "\"" };
+static inline const ::std::vector<::std::string> characters{ "'" };
+static inline const ::std::vector<::std::string> lineComments{ "#" };
+static inline const ::std::vector<::std::string> beginMultiLineComments{ "#*" };
+static inline const ::std::vector<::std::string> endMultilineComments{ "*#" };
 
 } // namespace xrn::language
